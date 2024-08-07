@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
         );
       }
     } else {
-      console.log("all goooood");
     }
 
     // Check wallet balance
