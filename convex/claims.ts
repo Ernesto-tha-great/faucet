@@ -11,7 +11,6 @@ export const createClaim = mutation({
 });
 
 export const getLastClaim = query({
-  // Changed from mutation to query
   args: { address: v.string() },
   handler: async (ctx, args) => {
     const { address } = args;

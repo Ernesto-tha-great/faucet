@@ -47,33 +47,21 @@ export async function POST(request: NextRequest) {
 
     // Check wallet balance
     try {
-      console.log("Wallet address:", wallet.address);
-      console.log("provider", provider);
-      console.log("Attempting to get wallet balance...");
-
       // First, try to get the balance using the wallet
       let balance;
       try {
         balance = await provider.getBalance(wallet.address);
       } catch (walletError) {
         console.error("Error getting balance from wallet:", walletError);
-        // If wallet.getBalance() fails, try using the provider directly
       }
 
-      console.log("Raw balance:", balance?.toString());
-
       if (balance?.lt(FAUCET_AMOUNT)) {
-        console.log("Faucet amount:", FAUCET_AMOUNT.toString());
-        console.error("Insufficient funds in faucet wallet");
         return Response.json(
           { error: "Faucet is currently out of funds" },
           { status: 503 }
         );
-      } else {
-        console.log("Sufficient funds available");
       }
     } catch (balanceError) {
-      console.error("Error getting wallet balance:", balanceError);
       if (balanceError instanceof Error) {
         if (balanceError.message.includes("network")) {
           return Response.json(
@@ -96,8 +84,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    //////////
 
     // Proceed with the transaction
     const tx = await wallet.sendTransaction({
@@ -132,8 +118,6 @@ export async function POST(request: NextRequest) {
           { status: 503 }
         );
       }
-
-      // Other specific errors can be handled here
 
       // Log the full error for debugging
       console.error("Full error details:", error);
