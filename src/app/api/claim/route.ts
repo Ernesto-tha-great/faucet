@@ -45,46 +45,6 @@ export async function POST(request: NextRequest) {
     } else {
     }
 
-    // Check wallet balance
-    // try {
-    //   // First, try to get the balance using the wallet
-    //   let balance;
-    //   try {
-    //     balance = await provider.getBalance(wallet.address);
-    //   } catch (walletError) {
-    //     console.error("Error getting balance from wallet:", walletError);
-    //   }
-
-    //   if (balance?.lt(FAUCET_AMOUNT)) {
-    //     return Response.json(
-    //       { error: "Faucet is currently out of funds" },
-    //       { status: 503 }
-    //     );
-    //   }
-    // } catch (balanceError) {
-    //   if (balanceError instanceof Error) {
-    //     if (balanceError.message.includes("network")) {
-    //       return Response.json(
-    //         {
-    //           error:
-    //             "Network error while checking faucet balance. Please try again later.",
-    //         },
-    //         { status: 503 }
-    //       );
-    //     }
-    //     // Log the full error for debugging
-    //     console.error("Full balance error details:", balanceError);
-    //     return Response.json(
-    //       { error: "Error checking faucet balance: " + balanceError.message },
-    //       { status: 500 }
-    //     );
-    //   }
-    //   return Response.json(
-    //     { error: "Unexpected error while checking faucet balance" },
-    //     { status: 500 }
-    //   );
-    // }
-
     // Proceed with the transaction
     const tx = await wallet.sendTransaction({
       to: address,
