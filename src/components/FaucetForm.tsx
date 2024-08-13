@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useToast } from "@/components/ui/use-toast";
 import { z } from "zod";
 import {
   Form,
@@ -14,11 +15,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
+import { ToastAction } from "./ui/toast";
+import { truncateAddress } from "@/lib/utils";
 
 export default function FaucetForm() {
-  //   const [address, setAddress] = useState("");
-  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const formSchema = z.object({
     address: z.string(),
@@ -33,7 +35,6 @@ export default function FaucetForm() {
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-    setMessage("");
     const address = data.address;
     try {
       // Call the API route to process the claim
@@ -48,54 +49,44 @@ export default function FaucetForm() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(
-          `Success! Claim processed for address: ${address}. Transaction hash: ${data.txHash}`
-        );
+        toast({
+          variant: "success",
+          title: "Faucet claim successfull!!",
+          action: (
+            <ToastAction
+              className="bg-green-900 text-white"
+              altText="View Transaction"
+              onClick={() => {
+                window.open(
+                  `https://explorer-testnet.morphl2.io/tx/${data.hash}`
+                );
+              }}
+            >
+              View transaction on Explorer
+            </ToastAction>
+          ),
+        });
       } else {
-        setMessage(`Error: ${data.error}`);
+        toast({
+          variant: "destructive",
+          title: "Could not process your claim",
+          description: `${data.error}`,
+        });
       }
     } catch (error) {
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "An error occurred. Please try again."
-      );
+      toast({
+        variant: "destructive",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    // <form onSubmit={handleSubmit} className="w-full max-w-md">
-    //   <input
-    //     type="text"
-    //     value={address}
-    //     onChange={(e) => setAddress(e.target.value)}
-    //     placeholder="Enter your Ethereum address"
-    //     className="w-full text-black p-2 mb-4 border border-gray-300 rounded"
-    //     required
-    //     disabled={isLoading}
-    //   />
-    //   <button
-    //     type="submit"
-    //     className={`w-full p-2 text-white rounded ${
-    //       isLoading
-    //         ? "bg-blue-300 cursor-not-allowed"
-    //         : "bg-blue-500 hover:bg-blue-600"
-    //     }`}
-    //     disabled={isLoading}
-    //   >
-    //     {isLoading ? "Processing..." : "Claim 0.01 ETH"}
-    //   </button>
-    //   {message && (
-    //     <p
-    //       className={`mt-4 text-center ${message.includes("Error") ? "text-red-500" : "text-green-500"}`}
-    //     >
-    //       {message}
-    //     </p>
-    //   )}
-    // </form>
-
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full">
         <FormField
@@ -108,7 +99,7 @@ export default function FaucetForm() {
               </FormLabel>
               <FormControl>
                 <Input
-                  className="rounded-full w-full"
+                  className="rounded-full text-black w-full"
                   placeholder="0x..."
                   {...field}
                 />
@@ -118,14 +109,16 @@ export default function FaucetForm() {
           )}
         />
 
-        <Button
-          className="bg-[#007A86] mt-8 rounded-full w-full"
-          size="lg"
-          disabled={isLoading}
-          type="submit"
-        >
-          {isLoading ? "Processing..." : "Claim Tokens"}
-        </Button>
+        <div className="flex flex-col justify-center items-center mt-6">
+          <Button
+            size="lg"
+            disabled={isLoading}
+            type="submit"
+            className="bg-[#00646d]  rounded-full "
+          >
+            {isLoading ? "Processing..." : "Claim Tokens"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
