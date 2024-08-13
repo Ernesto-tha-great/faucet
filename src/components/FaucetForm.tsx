@@ -58,7 +58,7 @@ export default function FaucetForm() {
               altText="View Transaction"
               onClick={() => {
                 window.open(
-                  `https://explorer-testnet.morphl2.io/tx/${data.hash}`
+                  `https://explorer-holesky.morphl2.io/tx/${data.txHash}`
                 );
               }}
             >
