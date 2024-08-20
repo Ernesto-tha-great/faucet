@@ -16,59 +16,49 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { ToastAction } from "./ui/toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+import { truncateAddress } from "@/lib/utils";
 
 export default function FaucetForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const formSchema = z.object({
-    address: z
-      .string()
-      .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address"),
-    token: z.enum(["ETH", "MORPH"]),
-    // captcha: z.string().min(1, "Please complete the captcha"),
+    address: z.string(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       address: "",
-      token: "ETH",
-      // captcha: "",
     },
   });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
+    const address = data.address;
     try {
+      // Call the API route to process the claim
       const response = await fetch("/api/claim", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ address }),
       });
 
-      const result = await response.json();
+      const data = await response.json();
 
       if (response.ok) {
         toast({
           variant: "success",
-          title: "Faucet claim successful!",
+          title: "Faucet claim successfull!!",
           action: (
             <ToastAction
               className="bg-green-900 text-white"
               altText="View Transaction"
               onClick={() => {
                 window.open(
-                  `https://explorer-holesky.morphl2.io/tx/${result.txHash}`
+                  `https://explorer-holesky.morphl2.io/tx/${data.txHash}`
                 );
               }}
             >
@@ -80,7 +70,7 @@ export default function FaucetForm() {
         toast({
           variant: "destructive",
           title: "Could not process your claim",
-          description: `${result.error}`,
+          description: `${data.error}`,
         });
       }
     } catch (error) {
@@ -98,32 +88,7 @@ export default function FaucetForm() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="flex flex-col w-full gap-6"
-      >
-        <FormField
-          control={form.control}
-          name="token"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Token</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className="bg-transparent rounded-full">
-                    <SelectValue placeholder="Select a token" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="ETH">ETH</SelectItem>
-                  <SelectItem value="MORPH">MORPH Token</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full">
         <FormField
           control={form.control}
           name="address"
@@ -134,7 +99,7 @@ export default function FaucetForm() {
               </FormLabel>
               <FormControl>
                 <Input
-                  className="rounded-full text-white bg-transparent w-full"
+                  className="rounded-full text-black w-full"
                   placeholder="0x..."
                   {...field}
                 />
@@ -144,32 +109,12 @@ export default function FaucetForm() {
           )}
         />
 
-        {/* Add a captcha field here */}
-        {/* <FormField
-          control={form.control}
-          name="captcha"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Captcha</FormLabel>
-              <FormControl> */}
-        {/* Implement your captcha component here */}
-        {/* <Input
-                  {...field}
-                  placeholder="Enter captcha"
-                  className=" bg-transparent rounded-full text-white"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
         <div className="flex flex-col justify-center items-center mt-6">
           <Button
             size="lg"
             disabled={isLoading}
             type="submit"
-            className="bg-[#00646d] rounded-full"
+            className="bg-[#00646d]  rounded-full "
           >
             {isLoading ? "Processing..." : "Claim Tokens"}
           </Button>
