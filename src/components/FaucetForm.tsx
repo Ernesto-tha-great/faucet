@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { ToastAction } from "./ui/toast";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 import {
   Select,
   SelectContent,
@@ -27,13 +28,14 @@ import {
 export default function FaucetForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const captchaRef = useRef<HCaptcha>(null);
 
   const formSchema = z.object({
     address: z
       .string()
       .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address"),
     token: z.enum(["ETH", "MORPH"]),
-    // captcha: z.string().min(1, "Please complete the captcha"),
+    captcha: z.string().min(1, "Please complete the captcha"),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -41,7 +43,7 @@ export default function FaucetForm() {
     defaultValues: {
       address: "",
       token: "ETH",
-      // captcha: "",
+      captcha: "",
     },
   });
 
@@ -93,6 +95,9 @@ export default function FaucetForm() {
       });
     } finally {
       setIsLoading(false);
+      if (captchaRef.current) {
+        captchaRef.current.resetCaptcha();
+      }
     }
   };
 
@@ -116,7 +121,7 @@ export default function FaucetForm() {
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="ETH">ETH</SelectItem>
-                  <SelectItem value="MORPH">MORPH Token</SelectItem>
+                  {/* <SelectItem value="MORPH">MORPH Token</SelectItem> */}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -144,25 +149,23 @@ export default function FaucetForm() {
           )}
         />
 
-        {/* Add a captcha field here */}
-        {/* <FormField
+        <FormField
           control={form.control}
           name="captcha"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Captcha</FormLabel>
-              <FormControl> */}
-        {/* Implement your captcha component here */}
-        {/* <Input
-                  {...field}
-                  placeholder="Enter captcha"
-                  className=" bg-transparent rounded-full text-white"
+              <FormControl>
+                <HCaptcha
+                  sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY as string}
+                  onVerify={(token) => form.setValue("captcha", token)}
+                  ref={captchaRef}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
-        /> */}
+        />
 
         <div className="flex flex-col justify-center items-center mt-6">
           <Button
