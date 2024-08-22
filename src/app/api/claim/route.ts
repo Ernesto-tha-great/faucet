@@ -1,13 +1,11 @@
 import { NextRequest } from "next/server";
 import { ethers } from "ethers";
-import { ConvexHttpClient } from "convex/browser";
-import { api } from "../../../../convex/_generated/api";
-
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+import redis from "../../../lib/redis";
+import { limitRate } from "../../../lib/rate-limiter";
 
 const ETH_FAUCET_AMOUNT = ethers.utils.parseEther("0.01");
-const MORPH_FAUCET_AMOUNT = ethers.utils.parseUnits("100", 18); // Assuming 18 decimals for MORPH token
-const COOLDOWN_PERIOD = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const MORPH_FAUCET_AMOUNT = ethers.utils.parseUnits("100", 18);
+const COOLDOWN_PERIOD = 24 * 60 * 60; // 24 hours in seconds
 
 const provider = new ethers.providers.JsonRpcProvider({
   url: process.env.MORPH_RPC_URL as string,
@@ -35,12 +33,22 @@ async function getNextNonce() {
 }
 
 async function verifyCaptcha(captchaResponse: string): Promise<boolean> {
-  // Implement captcha verification logic here
-  // Return true if captcha is valid, false otherwise
-  return true; // Placeholder
+  const verifyUrl = `https://hcaptcha.com/siteverify`;
+  const response = await fetch(verifyUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `response=${captchaResponse}&secret=${process.env.HCAPTCHA_SECRET_KEY}`,
+  });
+  const data = await response.json();
+  return data.success;
 }
 
 export async function POST(request: NextRequest) {
+  const ip = request.ip || "unknown";
+  const isAllowed = await limitRate(ip);
+  if (!isAllowed) {
+    return Response.json({ error: "Rate limit exceeded" }, { status: 429 });
+  }
   const { address, token, captcha } = await request.json();
 
   if (!ethers.utils.isAddress(address)) {
@@ -54,22 +62,20 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Invalid token selection" }, { status: 400 });
   }
 
-  // Verify captcha
   const isCaptchaValid = await verifyCaptcha(captcha);
   if (!isCaptchaValid) {
     return Response.json({ error: "Invalid captcha" }, { status: 400 });
   }
 
   try {
-    // Check for recent claims
-    const lastClaim = await convex.query(api.claims.getLastClaim, { address });
-    const now = Date.now();
+    const lastClaimTime = await redis.get(`lastClaim:${address}`);
+    const now = Math.floor(Date.now() / 1000);
 
-    if (lastClaim) {
-      const timeSinceLastClaim = now - lastClaim.timestamp;
+    if (lastClaimTime) {
+      const timeSinceLastClaim = now - parseInt(lastClaimTime);
       if (timeSinceLastClaim < COOLDOWN_PERIOD) {
         const remainingTime = Math.ceil(
-          (COOLDOWN_PERIOD - timeSinceLastClaim) / 1000 / 60
+          (COOLDOWN_PERIOD - timeSinceLastClaim) / 60
         );
         return Response.json(
           {
@@ -80,12 +86,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get the next nonce
     const nonce = await getNextNonce();
 
     let tx;
     if (token === "ETH") {
-      // Send ETH
       tx = await wallet.sendTransaction({
         to: address,
         value: ETH_FAUCET_AMOUNT,
@@ -94,19 +98,17 @@ export async function POST(request: NextRequest) {
         gasLimit: 21000,
       });
     } else {
-      // Send MORPH tokens
       tx = await morphTokenContract.transfer(address, MORPH_FAUCET_AMOUNT, {
         nonce: nonce,
         gasPrice: await provider.getGasPrice(),
-        gasLimit: 100000, // Adjust as needed for the MORPH token contract
+        gasLimit: 100000,
       });
     }
 
-    // Wait for the transaction to be mined
-    await tx.wait(1); // Wait for 1 confirmation
+    await tx.wait(1);
 
-    // Record the claim in Convex
-    await convex.mutation(api.claims.createClaim, { address, token });
+    // Record the claim in Redis with automatic expiration
+    await redis.set(`lastClaim:${address}`, now, "EX", COOLDOWN_PERIOD);
 
     return Response.json({ success: true, txHash: tx.hash });
   } catch (error) {
