@@ -34,7 +34,7 @@ export default function FaucetForm() {
     address: z
       .string()
       .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address"),
-    token: z.enum(["ETH", "MORPH"]),
+    token: z.enum(["ETH", "MORPH", "MORPHSTABLE"]),
     captcha: z.string().min(1, "Please complete the captcha"),
   });
 
@@ -119,9 +119,10 @@ export default function FaucetForm() {
                     <SelectValue placeholder="Select a token" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="bg-slate-300">
                   <SelectItem value="ETH">ETH</SelectItem>
                   {/* <SelectItem value="MORPH">MORPH Token</SelectItem> */}
+                  <SelectItem value="MORPHSTABLE">MORPH USDT</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
-import ConvexClientProvider from "../components/providers/convex-provider";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -34,6 +33,10 @@ export default function RootLayout({
           name="description"
           content="Holesky faucet for claiming testnet tokens"
         />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        />
       </head>
       <body
         className={cn(
@@ -41,13 +44,11 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <ConvexClientProvider>
-          <Header />
-          {children}
-          <Toaster />
-          <Analytics />
-          <SpeedInsights />
-        </ConvexClientProvider>
+        <Header />
+        {children}
+        <Toaster />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
