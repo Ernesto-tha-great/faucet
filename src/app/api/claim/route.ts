@@ -4,7 +4,7 @@ import redis from "../../../lib/redis";
 import { limitRate } from "../../../lib/rate-limiter";
 
 const ETH_FAUCET_AMOUNT = ethers.utils.parseEther("0.01");
-const MORPH_FAUCET_AMOUNT = ethers.utils.parseUnits("100", 18);
+const MORPH_FAUCET_AMOUNT = ethers.utils.parseUnits("0.1", 18);
 const COOLDOWN_PERIOD = 24 * 60 * 60; // 24 hours in seconds
 
 const provider = new ethers.providers.JsonRpcProvider({
@@ -15,11 +15,19 @@ const provider = new ethers.providers.JsonRpcProvider({
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY as string, provider);
 
 const MORPH_TOKEN_ADDRESS = process.env.MORPH_TOKEN_ADDRESS as string;
+const MORPH_USDT_ADDRESS = process.env.MORPH_USDT_ADDRESS as string;
+
 const morphTokenABI = [
   "function transfer(address to, uint256 amount) returns (bool)",
 ];
 const morphTokenContract = new ethers.Contract(
   MORPH_TOKEN_ADDRESS,
+  morphTokenABI,
+  wallet
+);
+
+const morphUsdtContract = new ethers.Contract(
+  MORPH_USDT_ADDRESS,
   morphTokenABI,
   wallet
 );
@@ -58,7 +66,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!["ETH", "MORPH"].includes(token)) {
+  if (!["ETH", "MORPH", "MORPHSTABLE"].includes(token)) {
     return Response.json({ error: "Invalid token selection" }, { status: 400 });
   }
 
@@ -97,8 +105,14 @@ export async function POST(request: NextRequest) {
         gasPrice: await provider.getGasPrice(),
         gasLimit: 21000,
       });
-    } else {
+    } else if (token === "MORPH") {
       tx = await morphTokenContract.transfer(address, MORPH_FAUCET_AMOUNT, {
+        nonce: nonce,
+        gasPrice: await provider.getGasPrice(),
+        gasLimit: 100000,
+      });
+    } else {
+      tx = await morphUsdtContract.transfer(address, MORPH_FAUCET_AMOUNT, {
         nonce: nonce,
         gasPrice: await provider.getGasPrice(),
         gasLimit: 100000,
