@@ -9,8 +9,9 @@ export default function Home() {
       <div className="flex-grow">
         <section className="py-12 flex flex-col items-center text-center gap-8">
           <h1 className="text-4xl font-bold">Morph Holesky Faucet</h1>
-          <p className="text-2xl text-muted-foreground">
-            Claim testnet tokens to your wallet.
+          <p className="text-2xl text-muted-foreground max-w-3xl text-center">
+          Claim Morph Holesky Testnet tokens every 24 hours for any development and testing needs.
+Please note, these are testnet-only tokens with no real economic value.
           </p>
         </section>
 

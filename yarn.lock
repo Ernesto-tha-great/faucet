@@ -8,9 +8,9 @@
   integrity sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==
 
 "@babel/runtime@^7.17.9":
-  version "7.25.0"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.25.0.tgz#3af9a91c1b739c569d5d80cc917280919c544ecb"
-  integrity sha512-7dRy4DwXwtzBrPbZflqxnvfxLF8kdZXPkhymtDeFoFqE6ldzjQFgYTtYIFARcLEYDrqfBfYcZt1WqFxRoyC9Rw==
+  version "7.25.4"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.25.4.tgz#6ef37d678428306e7d75f054d5b1bdb8cf8aa8ee"
+  integrity sha512-DSgLeL/FNcpXuzav5wfYvHCGvynXkJbn3Zvc3823AEe9nPwW9IK4UoCSS5yGymmQzN0pCPvivtgS6/8U2kkm1w==
   dependencies:
     regenerator-runtime "^0.14.0"
 
@@ -1394,9 +1394,9 @@ concat-map@0.0.1:
   integrity sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==
 
 convex@^1.13.2:
-  version "1.14.3"
-  resolved "https://registry.yarnpkg.com/convex/-/convex-1.14.3.tgz#802d494dba1a30776d01d07db76ce30809f1adef"
-  integrity sha512-ebKMDy9LPA8Ln6LdTH0vA8qgVI5IQXN6tk4X4h1ZqMDW6BrkUO1ee5jbXLCD59ojl93TUsgfF1k5jPhsMCDUdg==
+  version "1.14.4"
+  resolved "https://registry.yarnpkg.com/convex/-/convex-1.14.4.tgz#1f43024a25e418c2e09f38c09cb9d46c2681e510"
+  integrity sha512-JGOLst0HN5j7j/+2q117OlBvPPDTBb5mn5LR75OEMbEa99st4UrHaSSrL3a9hRzNfOo0flrhLlZtgX8xGz8faA==
   dependencies:
     esbuild "^0.17.5"
     jwt-decode "^3.1.2"

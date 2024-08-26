@@ -35,7 +35,6 @@ export default function FaucetForm() {
       .string()
       .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address"),
     token: z.enum(["ETH", "MORPH", "MORPHSTABLE"]),
-    captcha: z.string().min(1, "Please complete the captcha"),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -43,11 +42,30 @@ export default function FaucetForm() {
     defaultValues: {
       address: "",
       token: "ETH",
-      captcha: "",
     },
   });
 
-  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+  const executeCaptcha = () => {
+    if (captchaRef.current) {
+      captchaRef.current.execute();
+    }
+  };
+
+  const onCaptchaVerify = async (token: string) => {
+    if (!token) {
+      toast({
+        variant: "destructive",
+        title: "Captcha verification failed",
+        description: "Please try again.",
+      });
+      return;
+    }
+
+    const formData = form.getValues();
+    await handleSubmit({ ...formData, captcha: token });
+  };
+
+  const handleSubmit = async (data: z.infer<typeof formSchema> & { captcha: string }) => {
     setIsLoading(true);
     try {
       const response = await fetch("/api/claim", {
@@ -78,7 +96,7 @@ export default function FaucetForm() {
             </ToastAction>
           ),
         });
-      } else {
+      } else { 
         toast({
           variant: "destructive",
           title: "Could not process your claim",
@@ -104,7 +122,7 @@ export default function FaucetForm() {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit(executeCaptcha)}
         className="flex flex-col w-full gap-6"
       >
         <FormField
@@ -150,23 +168,15 @@ export default function FaucetForm() {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="captcha"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Captcha</FormLabel>
-              <FormControl>
+    
                 <HCaptcha
                   sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY as string}
-                  onVerify={(token) => form.setValue("captcha", token)}
+                  onVerify={onCaptchaVerify}
                   ref={captchaRef}
+                  size="invisible"
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+       
+    
 
         <div className="flex flex-col justify-center items-center mt-6">
           <Button
