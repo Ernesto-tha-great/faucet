@@ -15,17 +15,6 @@ const Header = () => {
               priority
             />
           </li>
-
-          {/* <li>
-            <div className="flex items-center gap-3">
-              {!isConnected ? (
-                <Button onClick={handleConnect}>Connect Wallet</Button>
-              ) : (
-                <p>{truncateAddress(address)}</p>
-              )}
-              <ModeToggle />
-            </div>
-          </li> */}
         </ul>
       </nav>
     </header>

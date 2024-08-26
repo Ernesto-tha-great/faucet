@@ -10,7 +10,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -121,45 +120,41 @@ export default function FaucetForm() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(executeCaptcha)}
-        className="flex flex-col w-full gap-6"
-      >
+    <form
+      onSubmit={form.handleSubmit(executeCaptcha)}
+      className="space-y-4"
+    >
+      <div className="grid grid-cols-5 gap-4">
         <FormField
           control={form.control}
           name="token"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Token</FormLabel>
+            <FormItem className="col-span-2">
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="bg-transparent rounded-full">
-                    <SelectValue placeholder="Select a token" />
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white rounded-md w-full">
+                    <SelectValue placeholder="Select token" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="bg-slate-300">
-                  <SelectItem value="ETH">ETH</SelectItem>
-                  {/* <SelectItem value="MORPH">MORPH Token</SelectItem> */}
-                  <SelectItem value="MORPHSTABLE">MORPH USDT</SelectItem>
+                <SelectContent className="bg-gray-700 border-gray-600">
+                  <SelectItem value="ETH" className="text-white">0.01 ETH</SelectItem>
+                  <SelectItem value="MORPHSTABLE" className="text-white">10 MORPH USDT</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
             </FormItem>
           )}
         />
-
+  
         <FormField
           control={form.control}
           name="address"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                <h1 className="">Morph Holesky Address</h1>
-              </FormLabel>
+            <FormItem className="col-span-3">
               <FormControl>
                 <Input
-                  className="rounded-full text-white bg-transparent w-full"
-                  placeholder="0x..."
+                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 rounded-md w-full"
+                  placeholder="Wallet Address"
                   {...field}
                 />
               </FormControl>
@@ -167,28 +162,24 @@ export default function FaucetForm() {
             </FormItem>
           )}
         />
-
-    
-                <HCaptcha
-                  sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY as string}
-                  onVerify={onCaptchaVerify}
-                  ref={captchaRef}
-                  size="invisible"
-                />
-       
-    
-
-        <div className="flex flex-col justify-center items-center mt-6">
-          <Button
-            size="lg"
-            disabled={isLoading}
-            type="submit"
-            className="bg-[#00646d] rounded-full"
-          >
-            {isLoading ? "Processing..." : "Claim Tokens"}
-          </Button>
-        </div>
-      </form>
-    </Form>
+      </div>
+  
+      <Button
+        size="lg"
+        disabled={isLoading}
+        type="submit"
+        className="w-full bg-white text-black hover:bg-gray-200 rounded-md"
+      >
+        {isLoading ? "Processing..." : `Send ${form.watch('token') === 'ETH' ? '0.01 ETH' : '10 MORPH USDT'}`}
+      </Button>
+  
+      <HCaptcha
+        sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY as string}
+        onVerify={onCaptchaVerify}
+        ref={captchaRef}
+        size="invisible"
+      />
+    </form>
+  </Form>
   );
 }
