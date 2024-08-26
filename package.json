@@ -38,6 +38,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/web3": "^1.2.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
     "postcss": "^8",

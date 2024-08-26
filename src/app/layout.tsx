@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+        <link rel="icon" type="image/svg+xml" href="/Morph.logo_white.svg" />
         <title>Morph Holesky Faucet</title>
         <meta
           name="description"

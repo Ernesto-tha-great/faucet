@@ -4,7 +4,7 @@ import redis from "../../../lib/redis";
 import { limitRate } from "../../../lib/rate-limiter";
 
 const ETH_FAUCET_AMOUNT = ethers.utils.parseEther("0.01");
-const MORPH_FAUCET_AMOUNT = ethers.utils.parseUnits("0.1", 18);
+const MORPH_FAUCET_AMOUNT = ethers.utils.parseUnits("10", 18);
 const COOLDOWN_PERIOD = 24 * 60 * 60; // 24 hours in seconds
 
 const provider = new ethers.providers.JsonRpcProvider({
