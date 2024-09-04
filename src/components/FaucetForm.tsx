@@ -137,7 +137,7 @@ export default function FaucetForm() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent className="bg-gray-700 border-gray-600">
-                  <SelectItem value="ETH" className="text-white">0.01 ETH</SelectItem>
+                  <SelectItem value="ETH" className="text-white">0.03 ETH</SelectItem>
                   <SelectItem value="MORPHSTABLE" className="text-white">10 MORPH USDT</SelectItem>
                 </SelectContent>
               </Select>
