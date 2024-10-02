@@ -5,7 +5,7 @@ import { limitRate } from "../../../lib/rate-limiter";
 
 const ETH_FAUCET_AMOUNT = ethers.utils.parseEther("0.03");
 const MORPH_FAUCET_AMOUNT = ethers.utils.parseUnits("10", 18);
-const COOLDOWN_PERIOD = 24 * 60 * 60; // 24 hours in seconds
+const COOLDOWN_PERIOD = 12 * 60 * 60; // 24 hours in seconds
 
 const provider = new ethers.providers.JsonRpcProvider({
   url: process.env.MORPH_RPC_URL as string,
