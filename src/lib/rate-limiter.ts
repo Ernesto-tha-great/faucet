@@ -6,7 +6,7 @@ const redisClient = new Redis(process.env.REDIS_URL as string);
 export const rateLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "ratelimit",
-  points: 8, // Number of requests
+  points: 60, // Number of requests
   duration: 60 * 60, // Per hour
 });
 
