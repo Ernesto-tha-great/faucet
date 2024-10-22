@@ -6,8 +6,8 @@ const redisClient = new Redis(process.env.REDIS_URL as string);
 export const rateLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "ratelimit",
-  points: 10, // Number of requests
-  duration: 1, //
+  points: 3, // Number of requests
+  duration: 3600, //
 });
 
 export async function limitRate(ip: string): Promise<boolean> {
