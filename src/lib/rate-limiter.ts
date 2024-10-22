@@ -7,14 +7,17 @@ export const rateLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "ratelimit",
   points: 10, // Number of requests
-  duration: 60, // Per hour
+  duration: 1, //
 });
 
 export async function limitRate(ip: string): Promise<boolean> {
   try {
+    console.log(`Attempting to consume rate limit for IP: ${ip}`);
     await rateLimiter.consume(ip);
+    console.log(`Request allowed for IP: ${ip}`);
     return true; // Request allowed
   } catch (rejRes) {
+    console.log(`Request blocked for IP: ${ip}`);
     return false; // Request blocked
   }
 }

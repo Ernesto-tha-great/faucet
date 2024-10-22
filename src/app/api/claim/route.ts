@@ -52,7 +52,7 @@ async function verifyCaptcha(captchaResponse: string): Promise<boolean> {
 }
 
 export async function POST(request: NextRequest) {
-  const ip = request.ip || "unknown";
+  const ip = request.headers.get("x-forwarded-for") || request.ip || "unknown";
   const isAllowed = await limitRate(ip);
   if (!isAllowed) {
     return Response.json({ error: "Rate limit exceeded" }, { status: 429 });
